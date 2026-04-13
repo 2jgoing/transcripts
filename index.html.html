@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<!-- saved from url=(0043)file:///C:/Users/lfp61/Downloads/index.html -->
+<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Script PDF</title>
+<link href="./YouTube Script PDF_files/css2" rel="stylesheet">
+<script src="./YouTube Script PDF_files/jspdf.umd.min.js.다운로드"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0f;
+    --surface: #17171a;
+    --surface2: #1f1f24;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --accent: #e94560;
+    --accent2: #ff6b35;
+    --text: #f0ede8;
+    --muted: #888780;
+    --dim: #444441;
+    --radius: 12px;
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  body {
+    font-family: var(--font-display);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 80px;
+  }
+
+  .grain {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+
+  .wrap { position: relative; z-index: 1; width: 100%; max-width: 760px; }
+
+  header { margin-bottom: 48px; }
+
+  .logo {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 13px; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  .logo-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent); display: inline-block;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  h1 span {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .sub {
+    margin-top: 12px;
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 400;
+    font-family: var(--font-mono);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-family: var(--font-mono);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]:focus {
+    border-color: var(--accent);
+  }
+
+  input[type="text"]::placeholder {
+    color: var(--dim);
+  }
+
+  .btn {
+    padding: 12px 22px;
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .btn:hover { opacity: 0.88; }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-secondary {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    color: var(--text);
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .option-block label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-family: var(--font-display);
+    color: var(--text);
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+
+  select:focus { border-color: var(--accent); }
+
+  .status-bar {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    font-family: var(--font-mono);
+    color: var(--muted);
+  }
+
+  .status-bar.show { display: flex; }
+  .status-bar.error { border-color: rgba(233,69,96,0.4); color: #ff6b6b; }
+  .status-bar.success { border-color: rgba(29,158,117,0.4); color: #4ade80; }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--dim);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .transcript-box {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .transcript-box.show { display: block; }
+
+  .transcript-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .transcript-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .transcript-meta {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .transcript-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-sm {
+    padding: 7px 14px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+
+  .transcript-content {
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .transcript-content::-webkit-scrollbar { width: 4px; }
+  .transcript-content::-webkit-scrollbar-track { background: transparent; }
+  .transcript-content::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+
+  .timestamp {
+    color: var(--accent);
+    font-size: 11px;
+    margin-right: 8px;
+  }
+
+  .how-to {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+  }
+
+  .how-to-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .step-text {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .step-text code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: var(--text);
+  }
+
+  .step-text strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 24px 0;
+  }
+
+  .proxy-note {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--muted);
+    padding: 12px 16px;
+    background: var(--surface2);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+    margin-top: 14px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 520px) {
+    .options-grid { grid-template-columns: 1fr; }
+    .input-row { flex-direction: column; }
+    .btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="wrap">
+
+  <header>
+    <div class="logo">
+      <span class="logo-dot"></span>
+      YouTube Transcript
+    </div>
+    <h1>스크립트를<br><span>PDF로</span> 변환</h1>
+    <p class="sub">// 유튜브 자막 → 학습용 PDF 스크립트 생성기</p>
+  </header>
+
+  <div class="card">
+    <div class="card-label">YouTube URL 또는 영상 ID</div>
+    <div class="input-row">
+      <input type="text" id="urlInput" placeholder="https://www.youtube.com/watch?v=... 또는 영상 ID">
+      <button class="btn" id="fetchBtn" onclick="fetchTranscript()">자막 가져오기</button>
+    </div>
+
+    <div class="options-grid">
+      <div class="option-block">
+        <label>자막 언어</label>
+        <select id="langSelect">
+          <option value="en">English (영어)</option>
+          <option value="ko">한국어</option>
+          <option value="auto">자동 감지</option>
+        </select>
+      </div>
+      <div class="option-block">
+        <label>PDF 스타일</label>
+        <select id="styleSelect">
+          <option value="study">학습용 (타임스탬프 포함)</option>
+          <option value="clean">클린 (텍스트만)</option>
+          <option value="shadow">쉐도잉용 (문장별 분리)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-bar" id="statusBar">
+    <div class="spinner" id="statusSpinner"></div>
+    <span id="statusText">자막을 가져오는 중...</span>
+  </div>
+
+  <div class="transcript-box" id="transcriptBox">
+    <div class="transcript-header">
+      <div>
+        <div class="transcript-title" id="videoTitle">자막 로드 완료</div>
+        <div class="transcript-meta" id="videoMeta"></div>
+      </div>
+      <div class="transcript-actions">
+        <button class="btn btn-secondary btn-sm" onclick="copyText()">복사</button>
+        <button class="btn btn-sm" onclick="downloadPDF()">PDF 저장</button>
+      </div>
+    </div>
+    <div class="transcript-content" id="transcriptContent"></div>
+  </div>
+
+  <div class="how-to">
+    <div class="how-to-title">사용 방법</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">유튜브 영상 URL을 위에 붙여넣으세요. 예: <code>youtube.com/watch?v=abc123</code> 또는 영상 ID만 입력해도 돼요.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text"><strong>자막 언어</strong>와 <strong>PDF 스타일</strong>을 선택하세요. 쉐도잉 연습에는 <strong>쉐도잉용</strong> 스타일을 추천해요.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>자막 가져오기</strong>를 누르면 자막이 표시되고, <strong>PDF 저장</strong>으로 다운로드할 수 있어요.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="how-to-title">브라우저 제한 안내</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">!</div>
+        <div class="step-text">
+          브라우저 보안 정책(CORS)으로 인해 유튜브 자막을 직접 가져올 수 없는 경우가 있어요.
+          그럴 땐 <strong>아래 방법</strong>으로 자막 텍스트를 직접 붙여넣기 할 수 있어요.
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="how-to-title">직접 텍스트 붙여넣기</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">A</div>
+        <div class="step-text">
+          유튜브 영상 하단 <strong>…(더보기) → 자막 열기</strong>를 클릭하면 전체 자막 텍스트를 복사할 수 있어요.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">B</div>
+        <div class="step-text">
+          복사한 텍스트를 아래 입력창에 붙여넣고 PDF로 변환하세요.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 20px;">
+    <div class="card-label">텍스트 직접 붙여넣기</div>
+    <textarea id="pasteInput" style="
+      width: 100%; height: 160px; resize: vertical;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 14px 16px;
+      font-family: var(--font-mono); font-size: 13px;
+      color: var(--text); outline: none; line-height: 1.7;
+      transition: border-color 0.2s;
+    " placeholder="유튜브 자막 텍스트를 여기에 붙여넣으세요...
+
+예시:
+0:00 Hello and welcome to Planet Money
+0:05 Today we&#39;re talking about the global supply chain
+..." onfocus="this.style.borderColor=&#39;var(--accent)&#39;" onblur="this.style.borderColor=&#39;var(--border)&#39;"></textarea>
+    <div style="margin-top: 12px; display: flex; gap: 10px; align-items: center;">
+      <input type="text" id="pasteTitle" placeholder="영상 제목 입력 (선택사항)" style="flex:1;">
+      <button class="btn" onclick="convertPaste()">PDF 변환</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const { jsPDF } = window.jspdf;
+
+function extractVideoId(input) {
+  input = input.trim();
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /^([a-zA-Z0-9_-]{11})$/
+  ];
+  for (const p of patterns) {
+    const m = input.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+function showStatus(msg, type = 'loading') {
+  const bar = document.getElementById('statusBar');
+  const spinner = document.getElementById('statusSpinner');
+  const text = document.getElementById('statusText');
+  bar.className = 'status-bar show' + (type === 'error' ? ' error' : type === 'success' ? ' success' : '');
+  spinner.style.display = type === 'loading' ? 'block' : 'none';
+  text.textContent = msg;
+}
+
+function hideStatus() {
+  document.getElementById('statusBar').className = 'status-bar';
+}
+
+async function fetchTranscript() {
+  const input = document.getElementById('urlInput').value.trim();
+  const lang = document.getElementById('langSelect').value;
+
+  if (!input) {
+    showStatus('URL 또는 영상 ID를 입력해주세요.', 'error');
+    return;
+  }
+
+  const videoId = extractVideoId(input);
+  if (!videoId) {
+    showStatus('올바른 유튜브 URL 또는 영상 ID를 입력해주세요.', 'error');
+    return;
+  }
+
+  document.getElementById('fetchBtn').disabled = true;
+  showStatus('자막을 가져오는 중... (잠시만 기다려주세요)');
+  document.getElementById('transcriptBox').className = 'transcript-box';
+
+  try {
+    const langParam = lang === 'auto' ? '' : `&lang=${lang}`;
+    const proxyUrl = `https://yt.lemnoslife.com/noKey?id=${videoId}&part=captions`;
+
+    let transcript = null;
+    let title = `YouTube — ${videoId}`;
+
+    const timedTextUrl = `https://www.youtube.com/api/timedtext?v=${videoId}&lang=${lang === 'auto' ? 'en' : lang}&fmt=json3`;
+    showStatus('자막 데이터 요청 중...');
+
+    try {
+      const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(timedTextUrl)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.events) {
+          transcript = parseTimedText(data.events);
+        }
+      }
+    } catch(e) {}
+
+    if (!transcript) {
+      try {
+        const altUrl = `https://www.youtube.com/api/timedtext?v=${videoId}&lang=en&fmt=srv3`;
+        const res2 = await fetch(`https://corsproxy.io/?${encodeURIComponent(altUrl)}`);
+        if (res2.ok) {
+          const xml = await res2.text();
+          transcript = parseXMLTranscript(xml);
+        }
+      } catch(e) {}
+    }
+
+    if (transcript && transcript.length > 0) {
+      displayTranscript(transcript, title);
+      showStatus(`자막 로드 완료 — ${transcript.length}개 문장`, 'success');
+      setTimeout(hideStatus, 3000);
+    } else {
+      showStatus('자막을 자동으로 가져올 수 없어요. 아래 "직접 붙여넣기" 방법을 이용해주세요.', 'error');
+    }
+  } catch(e) {
+    showStatus('오류 발생: ' + e.message + ' — 직접 붙여넣기를 이용해주세요.', 'error');
+  }
+
+  document.getElementById('fetchBtn').disabled = false;
+}
+
+function parseTimedText(events) {
+  const lines = [];
+  for (const ev of events) {
+    if (!ev.segs) continue;
+    const text = ev.segs.map(s => s.utf8 || '').join('').replace(/\n/g, ' ').trim();
+    if (!text || text === '\n') continue;
+    const ts = ev.tStartMs ? formatTime(ev.tStartMs / 1000) : '';
+    lines.push({ time: ts, text });
+  }
+  return lines;
+}
+
+function parseXMLTranscript(xml) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xml, 'text/xml');
+  const texts = doc.querySelectorAll('text');
+  const lines = [];
+  texts.forEach(t => {
+    const start = parseFloat(t.getAttribute('start') || 0);
+    const text = t.textContent.replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/\n/g, ' ').trim();
+    if (text) lines.push({ time: formatTime(start), text });
+  });
+  return lines;
+}
+
+function formatTime(secs) {
+  const m = Math.floor(secs / 60);
+  const s = Math.floor(secs % 60);
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function displayTranscript(lines, title) {
+  const style = document.getElementById('styleSelect').value;
+  document.getElementById('videoTitle').textContent = title;
+  document.getElementById('videoMeta').textContent = `${lines.length}줄 · ${style === 'study' ? '타임스탬프 포함' : style === 'shadow' ? '쉐도잉 모드' : '클린 모드'}`;
+
+  let html = '';
+  if (style === 'clean') {
+    html = lines.map(l => l.text).join('\n');
+  } else if (style === 'shadow') {
+    html = lines.map(l =>
+      `<div style="margin-bottom:14px; padding-bottom:14px; border-bottom: 1px solid var(--border);">` +
+      `<span class="timestamp">[${l.time}]</span>${l.text}<br>` +
+      `<span style="color:var(--dim); font-size:11px;">_____________________________________________</span>` +
+      `</div>`
+    ).join('');
+    document.getElementById('transcriptContent').innerHTML = html;
+    document.getElementById('transcriptBox').className = 'transcript-box show';
+    window._transcriptLines = lines;
+    window._transcriptTitle = title;
+    return;
+  } else {
+    html = lines.map(l => `[${l.time}]  ${l.text}`).join('\n');
+  }
+
+  document.getElementById('transcriptContent').textContent = html;
+  document.getElementById('transcriptBox').className = 'transcript-box show';
+  window._transcriptLines = lines;
+  window._transcriptTitle = title;
+}
+
+function convertPaste() {
+  const text = document.getElementById('pasteInput').value.trim();
+  const title = document.getElementById('pasteTitle').value.trim() || 'YouTube Transcript';
+
+  if (!text) {
+    showStatus('텍스트를 먼저 붙여넣어주세요.', 'error');
+    return;
+  }
+
+  const lines = text.split('\n').filter(l => l.trim()).map(l => {
+    const m = l.match(/^(\d+:\d+(?::\d+)?)\s+(.+)/);
+    if (m) return { time: m[1], text: m[2].trim() };
+    return { time: '', text: l.trim() };
+  });
+
+  displayTranscript(lines, title);
+  showStatus(`변환 완료 — ${lines.length}줄`, 'success');
+  setTimeout(hideStatus, 3000);
+  document.getElementById('transcriptBox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function copyText() {
+  const content = document.getElementById('transcriptContent');
+  const text = content.innerText || content.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    showStatus('클립보드에 복사됐어요!', 'success');
+    setTimeout(hideStatus, 2000);
+  });
+}
+
+function downloadPDF() {
+  const lines = window._transcriptLines;
+  const title = window._transcriptTitle || 'YouTube Transcript';
+  const style = document.getElementById('styleSelect').value;
+
+  if (!lines || lines.length === 0) {
+    showStatus('먼저 자막을 가져와주세요.', 'error');
+    return;
+  }
+
+  showStatus('PDF 생성 중...');
+
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pw = 210, ph = 297;
+  const ml = 18, mr = 18, mt = 22, mb = 20;
+  const tw = pw - ml - mr;
+  let y = mt;
+
+  const addPage = () => {
+    doc.addPage();
+    y = mt;
+    doc.setFontSize(8);
+    doc.setTextColor(150);
+    doc.text(title, ml, ph - mb + 8);
+    doc.text(`${doc.internal.getNumberOfPages()}`, pw - mr, ph - mb + 8, { align: 'right' });
+    doc.setTextColor(30);
+  };
+
+  const checkY = (needed) => { if (y + needed > ph - mb) addPage(); };
+
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(20);
+  const titleLines = doc.splitTextToSize(title, tw);
+  doc.text(titleLines, ml, y);
+  y += titleLines.length * 8 + 4;
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(120);
+  const now = new Date().toLocaleDateString('ko-KR');
+  doc.text(`생성일: ${now} | ${lines.length}줄 | ${style === 'study' ? '학습용' : style === 'shadow' ? '쉐도잉용' : '클린'}`, ml, y);
+  y += 6;
+
+  doc.setDrawColor(220); doc.setLineWidth(0.3);
+  doc.line(ml, y, pw - mr, y);
+  y += 8;
+
+  if (style === 'shadow') {
+    for (const line of lines) {
+      const wrapped = doc.splitTextToSize(line.text, tw - 20);
+      const blockH = (wrapped.length * 6) + 16;
+      checkY(blockH);
+
+      if (line.time) {
+        doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(233, 69, 96);
+        doc.text(`[${line.time}]`, ml, y);
+        y += 5;
+      }
+
+      doc.setFontSize(11); doc.setFont('helvetica', 'normal'); doc.setTextColor(20);
+      doc.text(wrapped, ml, y);
+      y += wrapped.length * 6 + 2;
+
+      doc.setFontSize(9); doc.setTextColor(180);
+      doc.text('_'.repeat(60), ml, y);
+      y += 5;
+
+      doc.setFontSize(8); doc.setTextColor(200);
+      doc.text('쉐도잉 연습:', ml, y);
+      y += 8;
+
+      doc.setDrawColor(200); doc.setLineWidth(0.2);
+      doc.line(ml, y - 1, pw - mr, y - 1);
+      y += 6;
+    }
+  } else if (style === 'clean') {
+    doc.setFontSize(11); doc.setFont('helvetica', 'normal'); doc.setTextColor(20);
+    for (const line of lines) {
+      const wrapped = doc.splitTextToSize(line.text, tw);
+      checkY(wrapped.length * 6 + 3);
+      doc.text(wrapped, ml, y);
+      y += wrapped.length * 6 + 3;
+    }
+  } else {
+    for (const line of lines) {
+      const fullLine = line.time ? `[${line.time}]  ${line.text}` : line.text;
+      const wrapped = doc.splitTextToSize(fullLine, tw);
+      checkY(wrapped.length * 6 + 3);
+
+      if (line.time) {
+        doc.setFontSize(9); doc.setFont('courier', 'bold'); doc.setTextColor(200, 60, 80);
+        doc.text(`[${line.time}]`, ml, y);
+        doc.setFont('helvetica', 'normal'); doc.setTextColor(20);
+        const textWrapped = doc.splitTextToSize(line.text, tw - 16);
+        doc.text(textWrapped, ml + 16, y);
+        y += Math.max(wrapped.length, textWrapped.length) * 6 + 2;
+      } else {
+        doc.setFontSize(11); doc.setFont('helvetica', 'normal'); doc.setTextColor(20);
+        doc.text(wrapped, ml, y);
+        y += wrapped.length * 6 + 2;
+      }
+    }
+  }
+
+  const totalPages = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8); doc.setTextColor(150);
+    doc.text(title.substring(0, 60), ml, ph - mb + 8);
+    doc.text(`${i} / ${totalPages}`, pw - mr, ph - mb + 8, { align: 'right' });
+  }
+
+  const filename = title.replace(/[^a-zA-Z0-9가-힣\s]/g, '').replace(/\s+/g, '_').substring(0, 40) + '_transcript.pdf';
+  doc.save(filename);
+
+  showStatus('PDF 저장 완료!', 'success');
+  setTimeout(hideStatus, 3000);
+}
+</script>
+
+
+</body></html>
